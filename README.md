@@ -15,3 +15,12 @@ and gets the show that you want to watch.
 If you would like to contribute that would be absolutely swell :) !!! I am currently learning Go, as 
 I think it is a beautiful language; because of this, the code may not be written in the best way. With this in mind
 anyone who has ideas for features or how to improve the code would be greatly appreciated!
+
+## How to use 
+To use the streamer, clone the repo. After this has been done, navigate to the bin folder and run 
+the binary there. All you have to do from there is type out the name of the show and the episode. 
+
+## Upcoming Features
+- Allow users to put more than one episode 
+- Include search feature of possible shows 
+- Fix space delimiter at end of show
