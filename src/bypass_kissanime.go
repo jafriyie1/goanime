@@ -49,6 +49,7 @@ func getURL() (string, string, string) {
 	if scanner.Scan() {
 		line = scanner.Text()
 	}
+	line = strings.TrimSpace(line)
 	fmt.Println("Please input episode number")
 	if scanner.Scan() {
 		episode = scanner.Text()
