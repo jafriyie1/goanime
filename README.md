@@ -24,4 +24,4 @@ the binary there. All you have to do from there is type out the name of the show
 ## Upcoming Features
 - Allow users to put more than one episode 
 - Include search feature of possible shows 
-- Fix space delimiter at end of show
+- Create GUI App
