@@ -81,7 +81,7 @@ func getURL() (string, string, string) {
 	base_url := "https://kissanime.ru/Anime/"+line+season+"/"
 	
 	episode = "Episode-"+ episode
-	
+
 	return line, base_url, episode
 }
 
@@ -100,7 +100,6 @@ func main() {
 
 	episode_search := base_url + episode + "?id=&s=rapidVideo"
 
-	fmt.Println(episode_search)
 	// chromedp 
 	ctxt, cancel := context.WithCancel(context.Background())
 	defer cancel()
