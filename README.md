@@ -19,7 +19,7 @@ anyone who has ideas for features or how to improve the code would be greatly ap
 
 ## How to use 
 To use the streamer, clone the repo. After this has been done, navigate to the bin folder and run 
-the binary there. All you have to do from there is type out the name of the show and the episode. 
+the binary there (execute ./goanime in your terminal, or double click it). All you have to do from there is type out the name of the show and the episode. 
 
 ## Upcoming Features
 - Allow users to put more than one episode 
