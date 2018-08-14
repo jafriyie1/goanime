@@ -41,7 +41,8 @@ func openBrowser(url string) {
 
 func getURL() (string, string, string) { 
 	var line string 
-	var episode string 
+	var episode string
+	var season string 
 
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please input anime name")
@@ -55,6 +56,13 @@ func getURL() (string, string, string) {
 		episode = scanner.Text()
 	}
 
+	
+	fmt.Println("Which season would you like to watch (1st, 2nd, 3rd, 4th, etc.)?\n(Hit enter if there is no season) ")
+	if scanner.Scan() {
+		season = scanner.Text()
+	}
+	season = strings.TrimSpace(season)
+
 	episodeToInt, err := strconv.ParseInt(episode, 10,32)
 	if err != nil {
 		log.Fatal(err)
@@ -65,10 +73,15 @@ func getURL() (string, string, string) {
 	if episodeToInt < 10 {
 		episode = "0"+episode
 	}
+	if season != "" {
+		season = "-"+season + "-Season"
+	}
 	
 	line = strings.Replace(line, " ", "-", -1)
-	base_url := "https://kissanime.ru/Anime/"+line+"/"
+	base_url := "https://kissanime.ru/Anime/"+line+season+"/"
+	
 	episode = "Episode-"+ episode
+	
 	return line, base_url, episode
 }
 
@@ -87,6 +100,7 @@ func main() {
 
 	episode_search := base_url + episode + "?id=&s=rapidVideo"
 
+	fmt.Println(episode_search)
 	// chromedp 
 	ctxt, cancel := context.WithCancel(context.Background())
 	defer cancel()
