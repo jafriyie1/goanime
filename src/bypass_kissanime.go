@@ -107,6 +107,8 @@ func main() {
 	var newerr error 
 	var val string 
 
+	fmt.Println("Please wait....")
+
 	// create headless chrome instance
 	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
 		runner.Flag("headless", true), 
