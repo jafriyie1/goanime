@@ -43,6 +43,7 @@ func getURL() (string, string, string) {
 	var line string 
 	var episode string
 	var season string 
+	var subOption string
 
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please input anime name")
@@ -51,6 +52,20 @@ func getURL() (string, string, string) {
 		line = scanner.Text()
 	}
 	line = strings.TrimSpace(line)
+
+	fmt.Println("Dubbed or Subbed (input Dub or Sub)?")
+	
+	if scanner.Scan() {
+		subOption= scanner.Text()
+	}
+	subOption = strings.ToLower(strings.TrimSpace(subOption))
+	
+	if subOption == "sub"{
+		subOption = ""
+	} else {
+		subOption = "-Dub"
+	}
+
 	fmt.Println("Please input episode number")
 	if scanner.Scan() {
 		episode = scanner.Text()
@@ -78,7 +93,7 @@ func getURL() (string, string, string) {
 	}
 	
 	line = strings.Replace(line, " ", "-", -1)
-	base_url := "https://kissanime.ru/Anime/"+line+season+"/"
+	base_url := "https://kissanime.ru/Anime/"+line+season+subOption+"/"
 	
 	episode = "Episode-"+ episode
 
