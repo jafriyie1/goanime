@@ -27,8 +27,8 @@ the binary there (execute ./goanime in your terminal, or double click it). If yo
 As of right now this application is still very raw. I can't guarantee that it will work for your machine due to the fact that I haven't written full tests for potential pitfalls. This program also only works for subbed anime. That will change soon.
 
 ## Upcoming Features
-- Allow Dubbed versions of shows
-- Allow users to put more than one episode 
-- Include search feature of possible shows 
+- Allow Dubbed versions of shows (Not Completed)
+- Allow users to put more than one episode (Finished! But it is still in Alpha!)
+- Include search feature of possible shows (Finished!)
 - Create GUI App
-- Easy installation and cross compatability 
+- Easy installation and cross compatability (Finished!)
