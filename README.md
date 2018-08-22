@@ -20,7 +20,7 @@ anyone who has ideas for features or how to improve the code would be greatly ap
 
 ## How to use 
 To use the streamer, clone the repo. If you have a mac, navigate to the bin folder and run 
-the binary there (execute ./goanime in your terminal, or double click it). If you have a machine that does not have MacOS we will need to compile it for your own machine (There may be issues doing this. Please wait until more features and testing is added). All you have to do from there is type out the name of the show, season and the episode. 
+the binary there (execute ./goanime in your terminal, or double click it). If you have a Windows machine run the .exe file in the bin folder.
 
 ## Disclaimer 
 
