@@ -15,6 +15,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/derekparker/trie"
+	"github.com/jafriyie1/animetries"
+
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
 )
@@ -37,17 +40,39 @@ func openBrowser(url string) {
 	}
 }
 
-func getURL() (string, string, string) {
+func getShow(b *trie.Trie) string {
 	var line string
-	var episode string
-	var season string
-
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Please input anime name")
+	fmt.Println("Please input anime name.\nYou can also input a part of the show to search.")
 
 	if scanner.Scan() {
 		line = scanner.Text()
 	}
+	fmt.Println("Here are some shows that match your search:cle")
+	fmt.Println()
+	animetries.PossibleShows(b, line)
+	fmt.Println()
+	fmt.Println("Please copy or type anime name and hit enter")
+	if scanner.Scan() {
+		line = scanner.Text()
+	}
+	return line
+
+}
+
+func getURL(line string) (string, string, string) {
+	//var line string
+	var episode string
+	var season string
+
+	scanner := bufio.NewScanner(os.Stdin)
+	/*
+		fmt.Println("Please input anime name")
+
+		if scanner.Scan() {
+			line = scanner.Text()
+		}
+	*/
 	line = strings.TrimSpace(line)
 	fmt.Println("Please input episode number")
 	if scanner.Scan() {
@@ -73,7 +98,9 @@ func getURL() (string, string, string) {
 	if season != "" {
 		season = "-" + season + "-Season"
 	}
-
+	line = strings.Replace(line, ":", "", -1)
+	line = strings.Replace(line, ")", "", -1)
+	line = strings.Replace(line, "(", "", -1)
 	line = strings.Replace(line, " ", "-", -1)
 	base_url := "https://kissanime.ru/Anime/" + line + season + "/"
 
@@ -91,8 +118,13 @@ func click(url string, val *string) chromedp.Tasks {
 }
 
 func main() {
-	t, t1, t2 := BuildAnimeTrie()
-	_, base_url, episode := getURL()
+	_, builtTrie, animeMap := animetries.BuildAnimeTrie()
+
+	searchedShow := getShow(builtTrie)
+	maxEpisode := animetries.GetEpisodeFromMap(searchedShow, animeMap)
+	fmt.Println()
+	fmt.Println(searchedShow + " has a maximum (or currently) " + maxEpisode + " episodes")
+	_, base_url, episode := getURL(searchedShow)
 	//fmt.Println(base_url)
 
 	episode_search := base_url + episode + "?id=&s=rapidVideo"

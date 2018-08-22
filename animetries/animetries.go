@@ -77,7 +77,7 @@ func BinarySearchAnime(a []string, search string) (result int, count int) {
 //BuildAnimeTrie
 
 func BuildAnimeTrie() ([]string, *trie.Trie, []map[string]string) {
-	f, err := os.Open("/Users/Joel/Desktop/Programming Stuff/Go/Anime/Data/anime.csv")
+	f, err := os.Open("../Data/anime.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
