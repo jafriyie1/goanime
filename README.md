@@ -12,11 +12,13 @@ Currently I am using chromedp in headless chrome mode, and other packages to get
 The code then opens up a new tab in your preferred browser with the selected show. It bypasses any ads 
 and gets the show that you want to watch. 
 
-
 ## Contributors 
 If you would like to contribute that would be absolutely swell :) !!! I am currently learning Go, as 
 I think it is a beautiful language; because of this, the code may not be written in the best way. With this in mind
 anyone who has ideas for features or how to improve the code would be greatly appreciated!
+
+## Example of program in terminal (with logging) 
+[![asciicast](https://asciinema.org/a/KttZeSMSQ2musQVoPh2lr8MDI.png)](https://asciinema.org/a/KttZeSMSQ2musQVoPh2lr8MDI)
 
 ## How to use 
 To use the streamer, clone the repo. If you have a mac, navigate to the bin folder and run 
