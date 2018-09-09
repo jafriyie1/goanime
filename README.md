@@ -22,7 +22,7 @@ anyone who has ideas for features or how to improve the code would be greatly ap
 
 ## How to use 
 To use the streamer, clone the repo. If you have a mac, navigate to the bin folder and run 
-the binary there (execute ./goanime in your terminal, or double click it). If you have a Windows machine run the .exe file in the bin folder.
+the binary there (execute ./goanime_concurrent in your terminal, or double click it). If you have a Windows machine run the .exe file in the bin folder.
 
 ## Disclaimer 
 
