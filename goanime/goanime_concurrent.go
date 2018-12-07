@@ -127,18 +127,30 @@ func getRangeOfEpisodes() (string, string) {
 	var episodeEnd string
 	scanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Println("What range of episodes would you like to watch?")
-	fmt.Println("Please input starting episode number")
-	if scanner.Scan() {
-		episodeStart = scanner.Text()
-	}
-	fmt.Println("Please input ending episode number")
-	if scanner.Scan() {
-		episodeEnd = scanner.Text()
-	}
+	if episodeStart == episodeEnd {
+		fmt.Println("Which episode would you like to watch?")
+		fmt.Println("Please input episode number")
 
-	episodeStart = strings.TrimSpace(episodeStart)
-	episodeEnd = strings.TrimSpace(episodeEnd)
+		if scanner.Scan() {
+			episodeStart = scanner.Text()
+		}
+		episodeStart = strings.TrimSpace(episodeStart)
+		episodeEnd = episodeStart
+
+	} else {
+		fmt.Println("What range of episodes would you like to watch?")
+		fmt.Println("Please input starting episode number")
+		if scanner.Scan() {
+			episodeStart = scanner.Text()
+		}
+		fmt.Println("Please input ending episode number")
+		if scanner.Scan() {
+			episodeEnd = scanner.Text()
+		}
+
+		episodeStart = strings.TrimSpace(episodeStart)
+		episodeEnd = strings.TrimSpace(episodeEnd)
+	}
 
 	return episodeStart, episodeEnd
 }
@@ -271,7 +283,8 @@ func main() {
 	upperLimitEpisode := " "
 
 	if option == "1" {
-		lowerLimitEpisode = getOneEpisode()
+		//lowerLimitEpisode = getOneEpisode()
+		lowerLimitEpisode, lowerLimitEpisode = getRangeOfEpisodes()
 	} else {
 		fmt.Println("WARNING: You can only get a maximum of 2 episodes.\nOutside of that you will get wonky behavior.")
 
