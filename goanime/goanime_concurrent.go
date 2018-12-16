@@ -15,8 +15,10 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
 	"github.com/derekparker/trie"
@@ -42,18 +44,18 @@ func openBrowser(url string) {
 }
 
 func getShow(b *trie.Trie) string {
-	var line string
+	var show string
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please input anime name.\nYou can also input a part of the show to search.")
 
 	if scanner.Scan() {
-		line = scanner.Text()
+		show = scanner.Text()
 	}
 
-	line = strings.TrimSpace(line)
+	show = strings.TrimSpace(show)
 
-	upperCase := byte(unicode.ToUpper(rune(line[0])))
-	upperLine := string(upperCase) + line[1:]
+	upperCase := byte(unicode.ToUpper(rune(show[0])))
+	upperLine := string(upperCase) + show[1:]
 
 	fmt.Println("Here are some shows that match your search:")
 	fmt.Println()
@@ -61,9 +63,9 @@ func getShow(b *trie.Trie) string {
 	fmt.Println()
 	fmt.Println("Please copy or type the anime show and hit enter")
 	if scanner.Scan() {
-		line = scanner.Text()
+		show = scanner.Text()
 	}
-	return line
+	return show
 
 }
 
@@ -77,7 +79,7 @@ func getSeason() string {
 	return season
 }
 
-func getURL(line, episode, season string) (string, string, string) {
+func getURL(show, episode, season string) (string, string, string) {
 
 	season = strings.TrimSpace(season)
 
@@ -97,15 +99,15 @@ func getURL(line, episode, season string) (string, string, string) {
 	if season != "" {
 		season = "-" + season + "-Season"
 	}
-	line = strings.Replace(line, ":", "", -1)
-	line = strings.Replace(line, ")", "", -1)
-	line = strings.Replace(line, "(", "", -1)
-	line = strings.Replace(line, " ", "-", -1)
-	base_url := "https://kissanime.ru/Anime/" + line + season + "/"
+	show = strings.Replace(show, ":", "", -1)
+	show = strings.Replace(show, ")", "", -1)
+	show = strings.Replace(show, "(", "", -1)
+	show = strings.Replace(show, " ", "-", -1)
+	base_url := "https://kissanime.ru/Anime/" + show + season + "/"
 
 	episode = "Episode-" + episode
 
-	return line, base_url, episode
+	return show, base_url, episode
 }
 
 func getOneEpisode() string {
@@ -128,7 +130,7 @@ func getRangeOfEpisodes() (string, string) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	if episodeStart == episodeEnd {
-		fmt.Println("Which episode would you like to watch?")
+		fmt.Println("Which episode would you like to watch?\nNote: do not place any zeros in front of the episode (i.e. type 25 for Episode 025)")
 		fmt.Println("Please input episode number")
 
 		if scanner.Scan() {
@@ -166,6 +168,22 @@ func click(url string, val *string) chromedp.Tasks {
 	}
 }
 
+func clickForEpisodeList(url string, val *string) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.Navigate(url),
+		chromedp.WaitVisible(`#head`),
+		chromedp.OuterHTML(`table.listing`, val, chromedp.NodeVisible),
+		//chromedp.Click(`a.specialButton`, chromedp.NodeVisible),
+		//chromedp.Click(`a.specialButton`, chromedp.NodeVisible),
+		//chromedp.WaitVisible(`div#divMyVideo`),
+		//chromedp.OuterHTML(`iframe#my_video_1`, val, chromedp.NodeVisible),
+	}
+}
+
+func nothing() {
+	return
+}
+
 func doGoAnime() (*chromedp.CDP, context.Context) {
 
 	// chromedp
@@ -173,14 +191,30 @@ func doGoAnime() (*chromedp.CDP, context.Context) {
 	//defer cancel()
 
 	// create headless chrome instance
-	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+	/*
+		c, _ := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+			runner.Flag("headless", true),
+			runner.Flag("disable-gpu", true),
+			runner.Flag("no-sandbox", true)),
+		)
+	*/
+	c, _ := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+		//runner.Headless(pathBrowser, 9222),
+		//runner.Flag("headless", true),
+		//runner.Flag("disable-gpu", true),
+		//runner.Flag("no-sandbox", true)))
+		//runner.Headless(path, 9222),
 		runner.Flag("headless", true),
 		runner.Flag("disable-gpu", true),
-		runner.Flag("no-sandbox", true)),
-	)
-	if newerr != nil {
-		log.Fatal(newerr)
-	}
+		runner.Flag("no-first-run", true),
+		runner.Flag("no-default-browser-check", true),
+		//runner.Port(9222),
+	))
+	/*
+		if newerr != nil {
+			log.Fatal(newerr)
+		}
+	*/
 
 	return c, ctxt
 
@@ -214,6 +248,35 @@ func concurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 
 }
 
+func getEpisodeList(searchedShow, season string, c *chromedp.CDP, ctxt context.Context) {
+	//defer wg.Done()
+	//var newerr error
+	var val string
+	_, baseURL, _ := getURL(searchedShow, "1", season)
+	//fmt.Println(base_url)
+
+	// run task list
+	var episodeSlice []string
+	c.Run(ctxt, clickForEpisodeList(baseURL, &val))
+
+	stringVals := strings.NewReader(val)
+	doc, _ := goquery.NewDocumentFromReader(stringVals)
+
+	doc.Find("tbody").Each(func(i int, s *goquery.Selection) {
+		episodeVals := s.Find("a").Text()
+		trimEpisodeVals := strings.Trim(episodeVals, "\n\t\r")
+		//fmt.Print(trimEpisodeVals)
+		episodeSlice = append(episodeSlice, trimEpisodeVals)
+	})
+
+	for _, c := range episodeSlice {
+		fmt.Println(c)
+	}
+
+	c.Shutdown(ctxt)
+
+}
+
 func doGoAnimeOneEpisode(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string) {
 	_, baseURL, episode := getURL(searchedShow, lowerLimitEpisode, season)
 	//fmt.Println(base_url)
@@ -230,11 +293,27 @@ func doGoAnimeOneEpisode(lowerLimitEpisode, upperLimitEpisode, searchedShow, sea
 	fmt.Println("Please wait....")
 
 	// create headless chrome instance
+	//chromedp.Withlog(log.Printf)
+	log.SetFlags(0)
+
+	//path := `/Applications/Google Chrome.app`
+	/*
+		if runtime.GOOS != "windows" {
+			path = "/usr/bin/google-chrome"
+		}
+	*/
+
 	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
 		//runner.Headless(pathBrowser, 9222),
+		//runner.Flag("headless", true),
+		//runner.Flag("disable-gpu", true),
+		//runner.Flag("no-sandbox", true)))
+		//runner.Headless(path, 9222),
 		runner.Flag("headless", true),
 		runner.Flag("disable-gpu", true),
-		runner.Flag("no-sandbox", true)))
+		runner.Flag("no-first-run", true),
+		runner.Flag("no-default-browser-check", true),
+	))
 
 	if newerr != nil {
 		log.Fatal(newerr)
@@ -264,15 +343,29 @@ func doGoAnimeOneEpisode(lowerLimitEpisode, upperLimitEpisode, searchedShow, sea
 }
 
 func main() {
-	_, builtTrie, animeMap := animetries.BuildAnimeTrie()
+	_, builtTrie, _ := animetries.BuildAnimeTrie()
 	var option string
 
 	scanner := bufio.NewScanner(os.Stdin)
 	searchedShow := getShow(builtTrie)
-	maxEpisode := animetries.GetEpisodeFromMap(searchedShow, animeMap)
+	searchedShow = strings.TrimSpace(searchedShow)
+	//maxEpisode := animetries.GetEpisodeFromMap(searchedShow, animeMap)
 	fmt.Println()
-	fmt.Println(searchedShow + " has a maximum (or currently) " + maxEpisode + " episodes")
-	fmt.Println("Would you like to watch one episode or mutliple (1 for episode, 2 for multiple)")
+	season := getSeason()
+	fmt.Println("Here is a list of episodes for the given show and season (please wait):")
+
+	cOne, ctxtOne := doGoAnime()
+	getEpisodeList(searchedShow, season, cOne, ctxtOne)
+	cOne.Shutdown(ctxtOne)
+	/*
+		if cErrOne != nil {
+			log.Fatal(cErrOne)
+		}
+	*/
+	fmt.Println()
+	time.Sleep(5)
+	//fmt.Println(searchedShow + " has a maximum (or currently) " + maxEpisode + " episodes")
+	fmt.Println("Scroll up to view episodes (and please ignore other messages).\nWould you like to watch one episode or mutliple (1 for episode, 2 for multiple)")
 
 	if scanner.Scan() {
 		option = scanner.Text()
@@ -290,8 +383,8 @@ func main() {
 
 		lowerLimitEpisode, upperLimitEpisode = getRangeOfEpisodes()
 	}
+	upperLimitEpisode = lowerLimitEpisode
 
-	season := getSeason()
 	wg := new(sync.WaitGroup)
 	if upperLimitEpisode != " " {
 
