@@ -191,30 +191,16 @@ func doGoAnime() (*chromedp.CDP, context.Context) {
 	//defer cancel()
 
 	// create headless chrome instance
-	/*
-		c, _ := chromedp.New(ctxt, chromedp.WithRunnerOptions(
-			runner.Flag("headless", true),
-			runner.Flag("disable-gpu", true),
-			runner.Flag("no-sandbox", true)),
-		)
-	*/
+
 	c, _ := chromedp.New(ctxt, chromedp.WithRunnerOptions(
-		//runner.Headless(pathBrowser, 9222),
-		//runner.Flag("headless", true),
-		//runner.Flag("disable-gpu", true),
-		//runner.Flag("no-sandbox", true)))
-		//runner.Headless(path, 9222),
+
+		runner.Flag("no-sandbox", true),
 		runner.Flag("headless", true),
 		runner.Flag("disable-gpu", true),
 		runner.Flag("no-first-run", true),
 		runner.Flag("no-default-browser-check", true),
-		//runner.Port(9222),
 	))
-	/*
-		if newerr != nil {
-			log.Fatal(newerr)
-		}
-	*/
+	log.SetFlags(0)
 
 	return c, ctxt
 
@@ -227,15 +213,22 @@ func concurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 
 	_, baseURL, episode := getURL(searchedShow, lowerLimitEpisode, season)
 	//fmt.Println(base_url)
+	//defer cancel()
 
 	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
-	fmt.Println(episodeSearch)
+	//fmt.Println(episodeSearch)
 	// run task list
+	log.SetFlags(0)
 
 	err := c.Run(ctxt, click(episodeSearch, &val))
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
+	}
+
+	err = c.Shutdown(ctxt)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	r, _ := regexp.Compile(`src="(.*?)"`)
@@ -248,15 +241,27 @@ func concurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 
 }
 
-func getEpisodeList(searchedShow, season string, c *chromedp.CDP, ctxt context.Context) {
-	//defer wg.Done()
-	//var newerr error
+func getEpisodeList(searchedShow, season string) {
+	log.SetFlags(0)
 	var val string
 	_, baseURL, _ := getURL(searchedShow, "1", season)
-	//fmt.Println(base_url)
 
-	// run task list
+	ctxt, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	var episodeSlice []string
+
+	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+
+		runner.Flag("headless", true),
+		runner.Flag("disable-gpu", true),
+		runner.Flag("no-first-run", true),
+		runner.Flag("no-default-browser-check", true),
+	))
+
+	if newerr != nil {
+		log.Fatal(newerr)
+	}
 	c.Run(ctxt, clickForEpisodeList(baseURL, &val))
 
 	stringVals := strings.NewReader(val)
@@ -296,19 +301,8 @@ func doGoAnimeOneEpisode(lowerLimitEpisode, upperLimitEpisode, searchedShow, sea
 	//chromedp.Withlog(log.Printf)
 	log.SetFlags(0)
 
-	//path := `/Applications/Google Chrome.app`
-	/*
-		if runtime.GOOS != "windows" {
-			path = "/usr/bin/google-chrome"
-		}
-	*/
-
 	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
-		//runner.Headless(pathBrowser, 9222),
-		//runner.Flag("headless", true),
-		//runner.Flag("disable-gpu", true),
-		//runner.Flag("no-sandbox", true)))
-		//runner.Headless(path, 9222),
+
 		runner.Flag("headless", true),
 		runner.Flag("disable-gpu", true),
 		runner.Flag("no-first-run", true),
@@ -354,14 +348,10 @@ func main() {
 	season := getSeason()
 	fmt.Println("Here is a list of episodes for the given show and season (please wait):")
 
-	cOne, ctxtOne := doGoAnime()
-	getEpisodeList(searchedShow, season, cOne, ctxtOne)
-	cOne.Shutdown(ctxtOne)
-	/*
-		if cErrOne != nil {
-			log.Fatal(cErrOne)
-		}
-	*/
+	//cOne, ctxtOne := doGoAnime()
+	getEpisodeList(searchedShow, season)
+	//cOne.Shutdown(ctxtOne)
+
 	fmt.Println()
 	time.Sleep(5)
 	//fmt.Println(searchedShow + " has a maximum (or currently) " + maxEpisode + " episodes")
@@ -388,7 +378,6 @@ func main() {
 	wg := new(sync.WaitGroup)
 	if upperLimitEpisode != " " {
 
-		fmt.Println("here")
 		lowerEpisode, _ := strconv.Atoi(lowerLimitEpisode)
 		//fmt.Println(lowerEpisode)
 
