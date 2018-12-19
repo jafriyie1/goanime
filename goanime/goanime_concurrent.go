@@ -173,22 +173,13 @@ func clickForEpisodeList(url string, val *string) chromedp.Tasks {
 		chromedp.Navigate(url),
 		chromedp.WaitVisible(`#head`),
 		chromedp.OuterHTML(`table.listing`, val, chromedp.NodeVisible),
-		//chromedp.Click(`a.specialButton`, chromedp.NodeVisible),
-		//chromedp.Click(`a.specialButton`, chromedp.NodeVisible),
-		//chromedp.WaitVisible(`div#divMyVideo`),
-		//chromedp.OuterHTML(`iframe#my_video_1`, val, chromedp.NodeVisible),
 	}
-}
-
-func nothing() {
-	return
 }
 
 func doGoAnime() (*chromedp.CDP, context.Context) {
 
 	// chromedp
 	ctxt, _ := context.WithCancel(context.Background())
-	//defer cancel()
 
 	// create headless chrome instance
 
@@ -207,16 +198,12 @@ func doGoAnime() (*chromedp.CDP, context.Context) {
 }
 
 func concurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string, wg *sync.WaitGroup, c *chromedp.CDP, ctxt context.Context) {
-	//defer wg.Done()
-	//var newerr error
+
 	var val string
 
 	_, baseURL, episode := getURL(searchedShow, lowerLimitEpisode, season)
-	//fmt.Println(base_url)
-	//defer cancel()
 
 	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
-	//fmt.Println(episodeSearch)
 	// run task list
 	log.SetFlags(0)
 
@@ -270,69 +257,15 @@ func getEpisodeList(searchedShow, season string) {
 	doc.Find("tbody").Each(func(i int, s *goquery.Selection) {
 		episodeVals := s.Find("a").Text()
 		trimEpisodeVals := strings.Trim(episodeVals, "\n\t\r")
-		//fmt.Print(trimEpisodeVals)
+
 		episodeSlice = append(episodeSlice, trimEpisodeVals)
 	})
 
-	for _, c := range episodeSlice {
-		fmt.Println(c)
+	for _, episodes := range episodeSlice {
+		fmt.Println(episodes)
 	}
 
 	c.Shutdown(ctxt)
-
-}
-
-func doGoAnimeOneEpisode(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string) {
-	_, baseURL, episode := getURL(searchedShow, lowerLimitEpisode, season)
-	//fmt.Println(base_url)
-
-	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
-
-	// chromedp
-	ctxt, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	var newerr error
-	var val string
-
-	fmt.Println("Please wait....")
-
-	// create headless chrome instance
-	//chromedp.Withlog(log.Printf)
-	log.SetFlags(0)
-
-	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
-
-		runner.Flag("headless", true),
-		runner.Flag("disable-gpu", true),
-		runner.Flag("no-first-run", true),
-		runner.Flag("no-default-browser-check", true),
-	))
-
-	if newerr != nil {
-		log.Fatal(newerr)
-	}
-
-	// run task list
-	err := c.Run(ctxt, click(episodeSearch, &val))
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	err = c.Shutdown(ctxt)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// wait for chrome to finish
-
-	r, _ := regexp.Compile(`src="(.*?)"`)
-	rapidVideoString := r.FindAllString(val, 1)
-	urlRapidVideo := rapidVideoString[0][4:]
-
-	url := strings.Replace(urlRapidVideo, "\"", "", -1)
-	openBrowser(url)
 
 }
 
@@ -343,18 +276,15 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	searchedShow := getShow(builtTrie)
 	searchedShow = strings.TrimSpace(searchedShow)
-	//maxEpisode := animetries.GetEpisodeFromMap(searchedShow, animeMap)
+
 	fmt.Println()
 	season := getSeason()
 	fmt.Println("Here is a list of episodes for the given show and season (please wait):")
 
-	//cOne, ctxtOne := doGoAnime()
 	getEpisodeList(searchedShow, season)
-	//cOne.Shutdown(ctxtOne)
 
 	fmt.Println()
 	time.Sleep(5)
-	//fmt.Println(searchedShow + " has a maximum (or currently) " + maxEpisode + " episodes")
 	fmt.Println("Scroll up to view episodes (and please ignore other messages).\nWould you like to watch one episode or mutliple (1 for episode, 2 for multiple)")
 
 	if scanner.Scan() {
@@ -362,11 +292,10 @@ func main() {
 	}
 	option = strings.TrimSpace(option)
 	var lowerLimitEpisode string
-	//var upperLimitEpisode *string
+
 	upperLimitEpisode := " "
 
 	if option == "1" {
-		//lowerLimitEpisode = getOneEpisode()
 		lowerLimitEpisode, lowerLimitEpisode = getRangeOfEpisodes()
 	} else {
 		fmt.Println("WARNING: You can only get a maximum of 2 episodes.\nOutside of that you will get wonky behavior.")
@@ -376,32 +305,24 @@ func main() {
 	upperLimitEpisode = lowerLimitEpisode
 
 	wg := new(sync.WaitGroup)
-	if upperLimitEpisode != " " {
 
-		lowerEpisode, _ := strconv.Atoi(lowerLimitEpisode)
-		//fmt.Println(lowerEpisode)
+	lowerEpisode, _ := strconv.Atoi(lowerLimitEpisode)
+	upperEpisode, _ := strconv.Atoi(upperLimitEpisode)
 
-		upperEpisode, _ := strconv.Atoi(upperLimitEpisode)
-		c, ctxt := doGoAnime()
-		//fmt.Println(upperEpisode)
-		for i := lowerEpisode; i < upperEpisode+1; i++ {
-			wg.Add(1)
-			fmt.Println(i)
-			loopedEpisode := strconv.Itoa(i)
-			//defer wg.Done()
+	c, ctxt := doGoAnime()
+	fmt.Println("Please wait....")
+	for i := lowerEpisode; i < upperEpisode+1; i++ {
+		wg.Add(1)
+		loopedEpisode := strconv.Itoa(i)
 
-			go concurrentEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, season, wg, c, ctxt)
+		go concurrentEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, season, wg, c, ctxt)
 
-		}
-		wg.Wait()
-		cErr := c.Shutdown(ctxt)
-		if cErr != nil {
-			log.Fatal(cErr)
-		}
-	} else {
-		//wg.Add(1)
-		doGoAnimeOneEpisode(lowerLimitEpisode, upperLimitEpisode, searchedShow, season)
-		//wg.Wait()
+	}
+	wg.Wait()
+	cErr := c.Shutdown(ctxt)
+
+	if cErr != nil {
+		log.Fatal(cErr)
 	}
 
 }
