@@ -25,7 +25,7 @@ import (
 	"github.com/jafriyie1/goanime/animetries"
 )
 
-func openBrowser(url string) {
+func OpenBrowser(url string) {
 	var err error
 
 	switch runtime.GOOS {
@@ -43,7 +43,7 @@ func openBrowser(url string) {
 	}
 }
 
-func getShow(b *trie.Trie) string {
+func GetShow(b *trie.Trie) string {
 	var show string
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please input anime name.\nYou can also input a part of the show to search.")
@@ -69,7 +69,7 @@ func getShow(b *trie.Trie) string {
 
 }
 
-func getSeason() string {
+func GetSeason() string {
 	var season string
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Which season would you like to watch (1st, 2nd, 3rd, 4th, etc.)?\n(Hit enter if there is no season) ")
@@ -79,7 +79,7 @@ func getSeason() string {
 	return season
 }
 
-func getURL(show, episode, season string) (string, string, string) {
+func GetURL(show, episode, season string) (string, string, string) {
 
 	season = strings.TrimSpace(season)
 
@@ -110,7 +110,7 @@ func getURL(show, episode, season string) (string, string, string) {
 	return show, base_url, episode
 }
 
-func getOneEpisode() string {
+func GetOneEpisode() string {
 	var episode string
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -124,7 +124,7 @@ func getOneEpisode() string {
 
 }
 
-func getRangeOfEpisodes() (string, string) {
+func GetRangeOfEpisodes() (string, string) {
 	var episodeStart string
 	var episodeEnd string
 	scanner := bufio.NewScanner(os.Stdin)
@@ -157,7 +157,7 @@ func getRangeOfEpisodes() (string, string) {
 	return episodeStart, episodeEnd
 }
 
-func click(url string, val *string) chromedp.Tasks {
+func Click(url string, val *string) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate(url),
 		//chromedp.WaitVisible(`#footer`),
@@ -176,7 +176,7 @@ func clickForEpisodeList(url string, val *string) chromedp.Tasks {
 	}
 }
 
-func doGoAnime() (*chromedp.CDP, context.Context) {
+func DoGoAnime() (*chromedp.CDP, context.Context) {
 
 	// chromedp
 	ctxt, _ := context.WithCancel(context.Background())
@@ -197,7 +197,7 @@ func doGoAnime() (*chromedp.CDP, context.Context) {
 
 }
 
-func concurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string, wg *sync.WaitGroup, c *chromedp.CDP, ctxt context.Context) {
+func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string, wg *sync.WaitGroup, c *chromedp.CDP, ctxt context.Context) {
 
 	var val string
 
@@ -228,7 +228,7 @@ func concurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 
 }
 
-func getEpisodeList(searchedShow, season string) {
+func GetEpisodeList(searchedShow, season string) {
 	log.SetFlags(0)
 	var val string
 	_, baseURL, _ := getURL(searchedShow, "1", season)
