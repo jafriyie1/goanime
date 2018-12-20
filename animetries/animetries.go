@@ -71,7 +71,7 @@ func BinarySearchAnime(a []string, search string) (result int, count int) {
 
 //BuildAnimeTrie
 
-func BuildAnimeTrie(r csv.Reader) ([]string, *trie.Trie, []map[string]string) {
+func BuildAnimeTrie(r *csv.Reader) ([]string, *trie.Trie, []map[string]string) {
 	//create new trie
 	animeTrie := trie.New()
 	var anime []AnimeInfo

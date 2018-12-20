@@ -17,7 +17,7 @@ import (
 
 func main() {
 
-	f, err := os.Open("anime.csv")
+	f, err := os.Open("../../Data/anime.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
