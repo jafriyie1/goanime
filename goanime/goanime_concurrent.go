@@ -249,7 +249,10 @@ func getEpisodeList(searchedShow, season string) {
 	if newerr != nil {
 		log.Fatal(newerr)
 	}
-	c.Run(ctxt, clickForEpisodeList(baseURL, &val))
+	err := c.Run(ctxt, clickForEpisodeList(baseURL, &val))
+	if err != nil {
+		log.Fatal(cErr)
+	}
 
 	stringVals := strings.NewReader(val)
 	doc, _ := goquery.NewDocumentFromReader(stringVals)
@@ -265,7 +268,10 @@ func getEpisodeList(searchedShow, season string) {
 		fmt.Println(episodes)
 	}
 
-	c.Shutdown(ctxt)
+	cErr := c.Shutdown(ctxt)
+	if cErr != nil {
+		log.Fatal(cErr)
+	}
 
 }
 
