@@ -201,13 +201,13 @@ func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 
 	var val string
 
-	_, baseURL, episode := getURL(searchedShow, lowerLimitEpisode, season)
+	_, baseURL, episode := GetURL(searchedShow, lowerLimitEpisode, season)
 
 	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
 	// run task list
 	log.SetFlags(0)
 
-	err := c.Run(ctxt, click(episodeSearch, &val))
+	err := c.Run(ctxt, Click(episodeSearch, &val))
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
@@ -223,7 +223,7 @@ func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 	urlRapidVideo := rapidVideoString[0][4:]
 
 	url := strings.Replace(urlRapidVideo, "\"", "", -1)
-	openBrowser(url)
+	OpenBrowser(url)
 	wg.Done()
 
 }
@@ -231,7 +231,7 @@ func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 func GetEpisodeList(searchedShow, season string) {
 	log.SetFlags(0)
 	var val string
-	_, baseURL, _ := getURL(searchedShow, "1", season)
+	_, baseURL, _ := GetURL(searchedShow, "1", season)
 
 	ctxt, cancel := context.WithCancel(context.Background())
 	defer cancel()
