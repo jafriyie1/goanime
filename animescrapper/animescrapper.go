@@ -1,7 +1,8 @@
 // This program allows one to watch anime
 // without having to go through the hoops
 // of using popular anime sites
-package goanime
+
+package animescrapper
 
 import (
 	"bufio"
