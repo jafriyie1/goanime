@@ -22,7 +22,7 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
 	"github.com/derekparker/trie"
-	"github.com/jafriyie1/animetries"
+	"github.com/jafriyie1/goanime/animetries"
 )
 
 func openBrowser(url string) {
