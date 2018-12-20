@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jafriyie1/goanime/animescrapper"
 	"github.com/jafriyie1/goanime/animetries"
 )
 
@@ -18,14 +19,14 @@ func main() {
 	var option string
 
 	scanner := bufio.NewScanner(os.Stdin)
-	searchedShow := getShow(builtTrie)
+	searchedShow := animescrapper.getShow(builtTrie)
 	searchedShow = strings.TrimSpace(searchedShow)
 
 	fmt.Println()
-	season := getSeason()
+	season := animescrapper.getSeason()
 	fmt.Println("Here is a list of episodes for the given show and season (please wait):")
 
-	getEpisodeList(searchedShow, season)
+	animescrapper.getEpisodeList(searchedShow, season)
 
 	fmt.Println()
 	time.Sleep(5)
@@ -40,11 +41,11 @@ func main() {
 	upperLimitEpisode := " "
 
 	if option == "1" {
-		lowerLimitEpisode, lowerLimitEpisode = getRangeOfEpisodes()
+		lowerLimitEpisode, lowerLimitEpisode = animescrapper.getRangeOfEpisodes()
 	} else {
 		fmt.Println("WARNING: You can only get a maximum of 2 episodes.\nOutside of that you will get wonky behavior.")
 
-		lowerLimitEpisode, upperLimitEpisode = getRangeOfEpisodes()
+		lowerLimitEpisode, upperLimitEpisode = animescrapper.getRangeOfEpisodes()
 	}
 	upperLimitEpisode = lowerLimitEpisode
 
@@ -53,13 +54,13 @@ func main() {
 	lowerEpisode, _ := strconv.Atoi(lowerLimitEpisode)
 	upperEpisode, _ := strconv.Atoi(upperLimitEpisode)
 
-	c, ctxt := doGoAnime()
+	c, ctxt := animescrapper.doGoAnime()
 	fmt.Println("Please wait....")
 	for i := lowerEpisode; i < upperEpisode+1; i++ {
 		wg.Add(1)
 		loopedEpisode := strconv.Itoa(i)
 
-		go concurrentEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, season, wg, c, ctxt)
+		go animescrapper.concurrentEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, season, wg, c, ctxt)
 
 	}
 	wg.Wait()
