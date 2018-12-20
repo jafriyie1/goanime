@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"log"
 	"os"
@@ -21,7 +22,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_, builtTrie, _ := animetries.BuildAnimeTrie(f)
+	r := csv.NewReader(bufio.NewReader(f))
+
+	_, builtTrie, _ := animetries.BuildAnimeTrie(r)
 	var option string
 
 	scanner := bufio.NewScanner(os.Stdin)
