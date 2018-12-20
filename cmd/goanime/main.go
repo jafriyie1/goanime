@@ -15,7 +15,13 @@ import (
 )
 
 func main() {
-	_, builtTrie, _ := animetries.BuildAnimeTrie()
+
+	f, err := os.Open("anime.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, builtTrie, _ := animetries.BuildAnimeTrie(f)
 	var option string
 
 	scanner := bufio.NewScanner(os.Stdin)

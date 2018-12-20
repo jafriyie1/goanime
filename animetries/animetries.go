@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 	"sort"
 
 	"github.com/derekparker/trie"
@@ -73,18 +72,12 @@ func BinarySearchAnime(a []string, search string) (result int, count int) {
 
 //BuildAnimeTrie
 
-func BuildAnimeTrie() ([]string, *trie.Trie, []map[string]string) {
-	f, err := os.Open("anime.csv")
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func BuildAnimeTrie(f *File) ([]string, *trie.Trie, []map[string]string) {
 	//create new trie
 	animeTrie := trie.New()
 	var anime []AnimeInfo
 
 	r := csv.NewReader(bufio.NewReader(f))
-
 	for {
 		line, error := r.Read()
 		if error == io.EOF {
