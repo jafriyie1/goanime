@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jafriyie1/goanime/animetries"
+	"github.com/jafriyie1/animetries"
 )
 
 func main() {
