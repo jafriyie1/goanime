@@ -27,7 +27,7 @@ To use the streamer first clone the repo. After you have done that run the follo
 
  `go install github.com/jafriyie1/goanime/animetries`
  
- `go install github.com/jafriyie1/goanime/animescrappe`
+ `go install github.com/jafriyie1/goanime/animescrapper`
 
  Once you have executed the commands, navigate to the cmd/goanime folder in the cloned repo. 
  Type `go run main.go` and you should be good to go!
