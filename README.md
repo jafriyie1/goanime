@@ -21,8 +21,16 @@ anyone who has ideas for features or how to improve the code would be greatly ap
 [![asciicast](https://asciinema.org/a/KttZeSMSQ2musQVoPh2lr8MDI.png)](https://asciinema.org/a/KttZeSMSQ2musQVoPh2lr8MDI)
 
 ## How to use 
-To use the streamer, clone the repo. If you have a mac, navigate to the bin folder and run 
-the binary there (execute ./goanime_concurrent in your terminal, or double click it). If you have a Windows machine run the .exe file in the bin folder.
+To use the streamer first clone the repo. After you have done that run the following commands:
+
+`go get -u github.com/jafriyie1/goanime`
+
+ `go install github.com/jafriyie1/goanime/animetries`
+ 
+ `go install github.com/jafriyie1/goanime/animescrappe`
+
+ Once you have executed the commands, navigate to the cmd/goanime folder in the cloned repo. 
+ Type `go run main.go` and you should be good to go!
 
 ## Disclaimer 
 
