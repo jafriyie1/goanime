@@ -168,7 +168,7 @@ func Click(url string, val *string) chromedp.Tasks {
 	}
 }
 
-func ClickForEpisodeList(url string, val *string) chromedp.Tasks {
+func clickForEpisodeList(url string, val *string) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate(url),
 		chromedp.WaitVisible(`#head`),
