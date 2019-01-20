@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 
 	"github.com/PuerkitoBio/goquery"
@@ -168,7 +169,7 @@ func Click(url string, val *string) chromedp.Tasks {
 	}
 }
 
-func clickForEpisodeList(url string, val *string) chromedp.Tasks {
+func ClickForEpisodeList(url string, val *string) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate(url),
 		chromedp.WaitVisible(`#head`),
@@ -179,7 +180,7 @@ func clickForEpisodeList(url string, val *string) chromedp.Tasks {
 func DoGoAnime() (*chromedp.CDP, context.Context) {
 
 	// chromedp
-	ctxt, _ := context.WithCancel(context.Background())
+	ctxt, _ := context.WithTimeout(context.Background(), time.Second*180)
 
 	// create headless chrome instance
 
@@ -233,13 +234,12 @@ func GetEpisodeList(searchedShow, season string) {
 	var val string
 	_, baseURL, _ := GetURL(searchedShow, "1", season)
 
-	ctxt, cancel := context.WithCancel(context.Background())
+	ctxt, cancel := context.WithTimeout(context.Background(), time.Second*180)
 	defer cancel()
 
 	var episodeSlice []string
 
 	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
-
 		runner.Flag("headless", true),
 		runner.Flag("disable-gpu", true),
 		runner.Flag("no-first-run", true),
@@ -249,7 +249,7 @@ func GetEpisodeList(searchedShow, season string) {
 	if newerr != nil {
 		log.Fatal(newerr)
 	}
-	err := c.Run(ctxt, clickForEpisodeList(baseURL, &val))
+	err := c.Run(ctxt, ClickForEpisodeList(baseURL, &val))
 	if err != nil {
 		log.Fatal(err)
 	}

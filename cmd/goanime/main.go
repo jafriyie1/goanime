@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/jafriyie1/goanime/animescrapper"
@@ -17,7 +16,7 @@ import (
 
 func main() {
 
-	f, err := os.Open("../../Data/anime.csv")
+	f, err := os.Open("../../Data/merge/full.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,33 +49,36 @@ func main() {
 	upperLimitEpisode := " "
 
 	if option == "1" {
-		lowerLimitEpisode, lowerLimitEpisode = animescrapper.GetRangeOfEpisodes()
+		lowerLimitEpisode, lowerLimitEpisode = animescrapper.GetRangeOfEpisodes(false)
+		upperLimitEpisode = lowerLimitEpisode
 	} else {
 		fmt.Println("WARNING: You can only get a maximum of 2 episodes.\nOutside of that you will get wonky behavior.")
 
-		lowerLimitEpisode, upperLimitEpisode = animescrapper.GetRangeOfEpisodes()
+		lowerLimitEpisode, upperLimitEpisode = animescrapper.GetRangeOfEpisodes(true)
 	}
-	upperLimitEpisode = lowerLimitEpisode
 
-	wg := new(sync.WaitGroup)
+	//wg := new(sync.WaitGroup)
 
 	lowerEpisode, _ := strconv.Atoi(lowerLimitEpisode)
 	upperEpisode, _ := strconv.Atoi(upperLimitEpisode)
 
-	c, ctxt := animescrapper.DoGoAnime()
 	fmt.Println("Please wait....")
 	for i := lowerEpisode; i < upperEpisode+1; i++ {
-		wg.Add(1)
+		//wg.Add(1)\
+
+		c, ctxt := animescrapper.DoGoAnime()
+		fmt.Println("Getting Episode", i)
 		loopedEpisode := strconv.Itoa(i)
+		animescrapper.ConcurrentEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, season, c, ctxt)
 
-		go animescrapper.ConcurrentEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, season, wg, c, ctxt)
+		/*
+			cErr := c.Shutdown(ctxt)
 
+			if cErr != nil {
+				log.Fatal(cErr)
+			}
+		*/
 	}
-	wg.Wait()
-	cErr := c.Shutdown(ctxt)
-
-	if cErr != nil {
-		log.Fatal(cErr)
-	}
+	//wg.Wait()
 
 }
