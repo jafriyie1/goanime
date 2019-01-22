@@ -15,7 +15,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 	"unicode"
 
@@ -125,12 +124,13 @@ func GetOneEpisode() string {
 
 }
 
-func GetRangeOfEpisodes() (string, string) {
+func GetRangeOfEpisodes(option bool) (string, string) {
 	var episodeStart string
 	var episodeEnd string
+
 	scanner := bufio.NewScanner(os.Stdin)
 
-	if episodeStart == episodeEnd {
+	if option == false {
 		fmt.Println("Which episode would you like to watch?\nNote: do not place any zeros in front of the episode (i.e. type 25 for Episode 025)")
 		fmt.Println("Please input episode number")
 
@@ -180,7 +180,7 @@ func ClickForEpisodeList(url string, val *string) chromedp.Tasks {
 func DoGoAnime() (*chromedp.CDP, context.Context) {
 
 	// chromedp
-	ctxt, _ := context.WithTimeout(context.Background(), time.Second*180)
+	ctxt, _ := context.WithTimeout(context.Background(), 180*time.Second)
 
 	// create headless chrome instance
 
@@ -198,13 +198,14 @@ func DoGoAnime() (*chromedp.CDP, context.Context) {
 
 }
 
-func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string, wg *sync.WaitGroup, c *chromedp.CDP, ctxt context.Context) {
+func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string, c *chromedp.CDP, ctxt context.Context) {
 
 	var val string
 
 	_, baseURL, episode := GetURL(searchedShow, lowerLimitEpisode, season)
 
 	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
+	//fmt.Println(episodeSearch)
 	// run task list
 	log.SetFlags(0)
 
@@ -225,7 +226,7 @@ func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 
 	url := strings.Replace(urlRapidVideo, "\"", "", -1)
 	OpenBrowser(url)
-	wg.Done()
+	//wg.Done()
 
 }
 
@@ -234,15 +235,18 @@ func GetEpisodeList(searchedShow, season string) {
 	var val string
 	_, baseURL, _ := GetURL(searchedShow, "1", season)
 
-	ctxt, cancel := context.WithTimeout(context.Background(), time.Second*180)
+	ctxt, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	var episodeSlice []string
+	var dateSlice []string
 
 	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+
 		runner.Flag("headless", true),
 		runner.Flag("disable-gpu", true),
 		runner.Flag("no-first-run", true),
+		runner.Flag("no-sandbox", true),
 		runner.Flag("no-default-browser-check", true),
 	))
 
@@ -256,21 +260,29 @@ func GetEpisodeList(searchedShow, season string) {
 
 	stringVals := strings.NewReader(val)
 	doc, _ := goquery.NewDocumentFromReader(stringVals)
-
+	var temp []string
 	doc.Find("tbody").Each(func(i int, s *goquery.Selection) {
 		episodeVals := s.Find("a").Text()
-		trimEpisodeVals := strings.Trim(episodeVals, "\n\t\r")
+		dateVals := s.Find("td").Text()
 
+		trimEpisodeVals := strings.Trim(episodeVals, "\n\t\r")
+		trimDateVals := strings.Trim(dateVals, "\n\t\r")
+		temp = strings.Split(trimDateVals, "\n")
 		episodeSlice = append(episodeSlice, trimEpisodeVals)
+		dateSlice = append(dateSlice, trimDateVals)
 	})
 
-	for _, episodes := range episodeSlice {
+	for _, episodes := range temp {
+		p := episodes
+		p = p + "2"
 		fmt.Println(episodes)
+		//fmt.Println(dateSlice[i])
 	}
+	//fmt.Println(dateSlice[0])
 
 	cErr := c.Shutdown(ctxt)
 	if cErr != nil {
-		log.Fatal(cErr)
+		log.Fatal("cErr")
 	}
 
 }

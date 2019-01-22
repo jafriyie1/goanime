@@ -14,6 +14,7 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
 	"github.com/jafriyie1/goanime/animescrapper"
+	//"github.com/jafriyie1/goanime/animescrapper"
 )
 
 func main() {
@@ -42,10 +43,10 @@ func main() {
 
 	//c, newerr := chromedp.New(ctxt)
 	var incr int
-	incr = (9 * 19) + 1
+	incr = (8 * 19) + 1
 	end := incr + 19
 
-	file, fileErr := os.Create("../../Data/merge/test7.csv")
+	file, fileErr := os.Create("../../Data/merge/test8.csv")
 
 	if fileErr != nil {
 		log.Fatal(fileErr)
