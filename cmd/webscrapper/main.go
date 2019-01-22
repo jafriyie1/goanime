@@ -29,69 +29,72 @@ func main() {
 	var strNumber string
 	var url string
 
-	ctxt, cancel := context.WithTimeout(context.Background(), 3*time.Hour)
-	defer cancel()
+	filePath := fmt.Sprintf("../../Data/test/episodes.csv")
+	file, fileErr := os.Create(filePath)
+	for j := 0; j <= 9; j++ {
+		ctxt, cancel := context.WithTimeout(context.Background(), 3*time.Hour)
+		defer cancel()
 
-	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+		c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
 
-		runner.Flag("headless", true),
-		runner.Flag("disable-gpu", true),
-		runner.Flag("no-first-run", true),
-		runner.Flag("no-sandbox", true),
-		//runner.Flag("no-default-browser-check", true),
-	))
+			runner.Flag("headless", true),
+			runner.Flag("disable-gpu", true),
+			runner.Flag("no-first-run", true),
+			runner.Flag("no-sandbox", true),
+			//runner.Flag("no-default-browser-check", true),
+		))
 
-	//c, newerr := chromedp.New(ctxt)
-	var incr int
-	incr = (8 * 19) + 1
-	end := incr + 19
+		//c, newerr := chromedp.New(ctxt)
+		var incr int
+		incr = (j * 19) + 1
+		end := incr + 19
 
-	file, fileErr := os.Create("../../Data/merge/test8.csv")
-
-	if fileErr != nil {
-		log.Fatal(fileErr)
-	}
-
-	for i := incr; i <= end; i++ {
-
-		pageNumber = i
-		strNumber = strconv.Itoa(pageNumber)
-		url = baseURL + strNumber
-		fmt.Println(url)
-
-		if newerr != nil {
-			log.Fatal(newerr)
-		}
-		err := c.Run(ctxt, animescrapper.ClickForEpisodeList(url, &val))
-		if err != nil {
-			log.Fatal(err)
+		if fileErr != nil {
+			log.Fatal(fileErr)
 		}
 
-		stringVals := strings.NewReader(val)
-		doc, _ := goquery.NewDocumentFromReader(stringVals)
+		for i := incr; i <= end; i++ {
 
-		doc.Find("tbody tr").Each(func(_ int, tr *goquery.Selection) {
+			pageNumber = i
+			strNumber = strconv.Itoa(pageNumber)
+			url = baseURL + strNumber
+			fmt.Println(url)
 
-			// for each <tr> found, find the <td>s inside
-			// ix is the index
-			tr.Find("td a").Each(func(ix int, td *goquery.Selection) {
+			if newerr != nil {
+				log.Fatal(newerr)
+			}
+			err := c.Run(ctxt, animescrapper.ClickForEpisodeList(url, &val))
+			if err != nil {
+				log.Fatal(err)
+			}
 
-				if ix == 0 {
-					val, _ := td.Attr("href")
-					t := strings.Replace(val, "/Anime/", "", -1)
-					finalString := strings.Replace(t, "-", " ", -1)
-					episodeSlice = append(episodeSlice, []string{"", finalString, "", "", "", "", ""})
-					log.Printf("index: %d content: '%s'", ix, finalString)
-				}
+			stringVals := strings.NewReader(val)
+			doc, _ := goquery.NewDocumentFromReader(stringVals)
+
+			doc.Find("tbody tr").Each(func(_ int, tr *goquery.Selection) {
+
+				// for each <tr> found, find the <td>s inside
+				// ix is the index
+				tr.Find("td a").Each(func(ix int, td *goquery.Selection) {
+
+					if ix == 0 {
+						val, _ := td.Attr("href")
+						t := strings.Replace(val, "/Anime/", "", -1)
+						finalString := strings.Replace(t, "-", " ", -1)
+						episodeSlice = append(episodeSlice, []string{"", finalString, "", "", "", "", ""})
+						log.Printf("index: %d content: '%s'", ix, finalString)
+					}
+				})
 			})
-		})
 
-		time.Sleep(time.Second * 5)
-	}
+			time.Sleep(time.Second * 5)
+		}
 
-	cErr := c.Shutdown(ctxt)
-	if cErr != nil {
-		log.Fatal("cErr")
+		cErr := c.Shutdown(ctxt)
+		if cErr != nil {
+			log.Fatal("cErr")
+		}
+
 	}
 
 	csvwriter := csv.NewWriter(file)
