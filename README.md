@@ -34,11 +34,9 @@ To use the streamer first clone the repo. After you have done that run the follo
 
 ## Disclaimer 
 
-As of right now this application is still very raw. I can't guarantee that it will work for your machine due to the fact that I haven't written full tests for potential pitfalls. This program also only works for subbed anime. That will change soon.
-
+As of right now this application is still very raw. I can't guarantee that it will work for your machine due to the fact that I haven't written full tests for potential pitfalls.
 ## Upcoming Features
-- Allow Dubbed versions of shows (Not Completed)
-- Allow users to put more than one episode (Finished! But it is still in Alpha!)
-- Include search feature of possible shows (Finished!)
-- Create GUI App
-- Easy installation and cross compatability (Finished!)
+- Allow Dubbed versions of shows (Completed)
+- Allow users to put more than one episode (Completed)
+- Include search feature of possible shows (Completed)
+- Easy installation and cross compatability (Completed)
