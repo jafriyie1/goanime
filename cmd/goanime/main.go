@@ -31,7 +31,8 @@ func main() {
 	searchedShow = strings.TrimSpace(searchedShow)
 
 	fmt.Println()
-	season := animescrapper.GetSeason()
+	//season := animescrapper.GetSeason()
+	season := ""
 	fmt.Println("Here is a list of episodes for the given show and season (please wait):")
 
 	animescrapper.GetEpisodeList(searchedShow, season)
@@ -52,33 +53,20 @@ func main() {
 		lowerLimitEpisode, lowerLimitEpisode = animescrapper.GetRangeOfEpisodes(false)
 		upperLimitEpisode = lowerLimitEpisode
 	} else {
-		fmt.Println("WARNING: You can only get a maximum of 2 episodes.\nOutside of that you will get wonky behavior.")
+		//fmt.Println("WARNING: You can only get a maximum of 2 episodes.\nOutside of that you will get wonky behavior.")
 
 		lowerLimitEpisode, upperLimitEpisode = animescrapper.GetRangeOfEpisodes(true)
 	}
-
-	//wg := new(sync.WaitGroup)
 
 	lowerEpisode, _ := strconv.Atoi(lowerLimitEpisode)
 	upperEpisode, _ := strconv.Atoi(upperLimitEpisode)
 
 	fmt.Println("Please wait....")
 	for i := lowerEpisode; i < upperEpisode+1; i++ {
-		//wg.Add(1)\
 
 		c, ctxt := animescrapper.DoGoAnime()
 		fmt.Println("Getting Episode", i)
 		loopedEpisode := strconv.Itoa(i)
 		animescrapper.ConcurrentEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, season, c, ctxt)
-
-		/*
-			cErr := c.Shutdown(ctxt)
-
-			if cErr != nil {
-				log.Fatal(cErr)
-			}
-		*/
 	}
-	//wg.Wait()
-
 }

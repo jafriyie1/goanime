@@ -14,7 +14,6 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
 	"github.com/jafriyie1/goanime/animescrapper"
-	//"github.com/jafriyie1/goanime/animescrapper"
 )
 
 func main() {

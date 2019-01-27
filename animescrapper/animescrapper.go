@@ -205,12 +205,17 @@ func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 	_, baseURL, episode := GetURL(searchedShow, lowerLimitEpisode, season)
 
 	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
-	//fmt.Println(episodeSearch)
+
 	// run task list
 	log.SetFlags(0)
 
 	err := c.Run(ctxt, Click(episodeSearch, &val))
 	if err != nil {
+		fmt.Println("Couldn't get the episode. Please re run the program.")
+		newerr := c.Shutdown(ctxt)
+		if newerr != nil {
+			log.Fatal(newerr)
+		}
 		log.Fatal(err)
 		os.Exit(1)
 	}
@@ -226,7 +231,6 @@ func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, seas
 
 	url := strings.Replace(urlRapidVideo, "\"", "", -1)
 	OpenBrowser(url)
-	//wg.Done()
 
 }
 
@@ -255,6 +259,11 @@ func GetEpisodeList(searchedShow, season string) {
 	}
 	err := c.Run(ctxt, ClickForEpisodeList(baseURL, &val))
 	if err != nil {
+		fmt.Println("Couldn't get the episode list. Please re run the program.")
+		newerr := c.Shutdown(ctxt)
+		if newerr != nil {
+			log.Fatal(newerr)
+		}
 		log.Fatal(err)
 	}
 
@@ -273,12 +282,8 @@ func GetEpisodeList(searchedShow, season string) {
 	})
 
 	for _, episodes := range temp {
-		p := episodes
-		p = p + "2"
 		fmt.Println(episodes)
-		//fmt.Println(dateSlice[i])
 	}
-	//fmt.Println(dateSlice[0])
 
 	cErr := c.Shutdown(ctxt)
 	if cErr != nil {
