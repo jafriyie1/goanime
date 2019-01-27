@@ -64,6 +64,10 @@ func main() {
 			}
 			err := c.Run(ctxt, animescrapper.ClickForEpisodeList(url, &val))
 			if err != nil {
+				cErr := c.Shutdown(ctxt)
+				if cErr != nil {
+					log.Fatal("Chrome could not be closed.")
+				}
 				log.Fatal(err)
 			}
 
