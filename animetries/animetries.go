@@ -25,7 +25,7 @@ type AnimeInfo struct {
 }
 
 func PossibleShows(builtTrie *trie.Trie, searchedShow string) {
-	possibleShows := builtTrie.PrefixSearch(searchedShow)
+	possibleShows := builtTrie.FuzzySearch(searchedShow)
 	for _, show := range possibleShows {
 		fmt.Println(show)
 	}
