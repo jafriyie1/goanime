@@ -12,7 +12,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
-	"github.com/chromedp/chromedp/runner"
 	"github.com/jafriyie1/goanime/animescrapper"
 )
 
@@ -30,18 +29,22 @@ func main() {
 
 	filePath := fmt.Sprintf("../../Data/test/episodes.csv")
 	file, fileErr := os.Create(filePath)
-	for j := 0; j <= 9; j++ {
-		ctxt, cancel := context.WithTimeout(context.Background(), 3*time.Hour)
+	for j := 0; j <= 10; j++ {
+		//ctxt, cancel := context.WithTimeout(context.Background(), 3*time.Hour)
+		ctxt, cancel := chromedp.NewContext(context.Background())
+		ctxt, cancel = context.WithTimeout(ctxt, 180*time.Second)
 		defer cancel()
 
-		c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+		/*
+			c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
 
-			runner.Flag("headless", true),
-			runner.Flag("disable-gpu", true),
-			runner.Flag("no-first-run", true),
-			runner.Flag("no-sandbox", true),
-			//runner.Flag("no-default-browser-check", true),
-		))
+				runner.Flag("headless", true),
+				runner.Flag("disable-gpu", true),
+				runner.Flag("no-first-run", true),
+				runner.Flag("no-sandbox", true),
+				//runner.Flag("no-default-browser-check", true),
+			))
+		*/
 
 		//c, newerr := chromedp.New(ctxt)
 		var incr int
@@ -59,15 +62,21 @@ func main() {
 			url = baseURL + strNumber
 			fmt.Println(url)
 
-			if newerr != nil {
-				log.Fatal(newerr)
-			}
-			err := c.Run(ctxt, animescrapper.ClickForEpisodeList(url, &val))
-			if err != nil {
-				cErr := c.Shutdown(ctxt)
-				if cErr != nil {
-					log.Fatal("Chrome could not be closed.")
+			/*
+				if newerr != nil {
+					log.Fatal(newerr)
 				}
+			*/
+			err := chromedp.Run(ctxt, animescrapper.ClickForEpisodeList(url, &val))
+			if err != nil {
+				csvwriter := csv.NewWriter(file)
+
+				for _, val := range episodeSlice {
+					if err := csvwriter.Write(val); err != nil {
+						log.Fatal("Error occured during writing data to csv")
+					}
+				}
+				csvwriter.Flush()
 				log.Fatal(err)
 			}
 
@@ -92,11 +101,12 @@ func main() {
 
 			time.Sleep(time.Second * 5)
 		}
-
-		cErr := c.Shutdown(ctxt)
-		if cErr != nil {
-			log.Fatal("cErr")
-		}
+		/*
+			cErr := c.Shutdown(ctxt)
+			if cErr != nil {
+				log.Fatal("cErr")
+			}
+		*/
 
 	}
 

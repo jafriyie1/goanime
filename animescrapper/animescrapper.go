@@ -15,12 +15,13 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
-	"github.com/chromedp/chromedp/runner"
+
 	"github.com/derekparker/trie"
 	"github.com/jafriyie1/goanime/animetries"
 )
@@ -154,6 +155,7 @@ func GetRangeOfEpisodes(option bool) (string, string) {
 		episodeStart = strings.TrimSpace(episodeStart)
 		episodeEnd = strings.TrimSpace(episodeEnd)
 	}
+	//fmt.Println("Start episode", episodeStart)
 
 	return episodeStart, episodeEnd
 }
@@ -164,7 +166,7 @@ func Click(url string, val *string) chromedp.Tasks {
 		//chromedp.WaitVisible(`#footer`),
 		chromedp.Click(`a.specialButton`, chromedp.NodeVisible),
 		chromedp.Click(`a.specialButton`, chromedp.NodeVisible),
-		chromedp.WaitVisible(`div#divMyVideo`),
+		//chromedp.WaitVisible(`div#divMyVideo`),
 		chromedp.OuterHTML(`iframe#my_video_1`, val, chromedp.NodeVisible),
 	}
 }
@@ -177,53 +179,101 @@ func ClickForEpisodeList(url string, val *string) chromedp.Tasks {
 	}
 }
 
-func DoGoAnime() (*chromedp.CDP, context.Context) {
+func DoGoAnime() (context.Context, context.CancelFunc) {
 
 	// chromedp
-	ctxt, _ := context.WithTimeout(context.Background(), 180*time.Second)
+	//ctxt, _ := context.WithTimeout(context.Background(), 180*time.Second)
+	/*
+		opts := append(chromedp.DefaultExecAllocatorOptions[:],
+			chromedp.DisableGPU,
+		)
+	*/
+	//ctxt, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+	ctxt, cancel := chromedp.NewContext(context.Background())
+	ctxt, cancel = context.WithTimeout(ctxt, 180*time.Second)
 
 	// create headless chrome instance
+	/*
+		c, _ := chromedp.New(ctxt, chromedp.WithRunnerOptions(
 
-	c, _ := chromedp.New(ctxt, chromedp.WithRunnerOptions(
-
-		runner.Flag("no-sandbox", true),
-		runner.Flag("headless", true),
-		runner.Flag("disable-gpu", true),
-		runner.Flag("no-first-run", true),
-		runner.Flag("no-default-browser-check", true),
-	))
+			runner.Flag("no-sandbox", true),
+			runner.Flag("headless", true),
+			runner.Flag("disable-gpu", true),
+			runner.Flag("no-first-run", true),
+			runner.Flag("no-default-browser-check", true),
+		))
+	*/
 	log.SetFlags(0)
 
-	return c, ctxt
+	//return c, ctxt
+	return ctxt, cancel
 
 }
 
-func ConcurrentEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string, c *chromedp.CDP, ctxt context.Context) {
+func OpenEpisodesAPI(lowerLimitEpisode string, searchedShow string) string {
 
+	ctxt, cancel := DoGoAnime()
+	defer cancel()
 	var val string
 
-	_, baseURL, episode := GetURL(searchedShow, lowerLimitEpisode, season)
+	_, baseURL, episode := GetURL(searchedShow, lowerLimitEpisode, "")
 
 	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
 
 	// run task list
 	log.SetFlags(0)
 
-	err := c.Run(ctxt, Click(episodeSearch, &val))
+	err := chromedp.Run(ctxt, Click(episodeSearch, &val))
 	if err != nil {
 		fmt.Println("Couldn't get the episode. Please re run the program.")
-		newerr := c.Shutdown(ctxt)
-		if newerr != nil {
-			log.Fatal(newerr)
-		}
+		//newerr := chromedp.Shutdown(ctxt)
+		//if newerr != nil {
+		//	log.Fatal(newerr)
+		//}
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	err = c.Shutdown(ctxt)
+	r, _ := regexp.Compile(`src="(.*?)"`)
+	rapidVideoString := r.FindAllString(val, 1)
+	urlRapidVideo := rapidVideoString[0][4:]
+
+	url := strings.Replace(urlRapidVideo, "\"", "", -1)
+	//OpenBrowser(url)
+	return url
+
+}
+
+func OpenEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	var val string
+
+	ctxt, cancel := DoGoAnime()
+	defer cancel()
+
+	_, baseURL, episode := GetURL(searchedShow, lowerLimitEpisode, season)
+
+	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
+	//fmt.Println(episodeSearch)
+
+	// run task list
+	log.SetFlags(0)
+
+	err := chromedp.Run(ctxt, Click(episodeSearch, &val))
 	if err != nil {
+		fmt.Println("Couldn't get the episode. Please re run the program.")
+		//newerr := c.Shutdown(ctxt)
+		//if newerr != nil {
+		//	log.Fatal(newerr)
+		//}
 		log.Fatal(err)
+		os.Exit(1)
 	}
+
+	//	err = c.Shutdown(ctxt)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
 
 	r, _ := regexp.Compile(`src="(.*?)"`)
 	rapidVideoString := r.FindAllString(val, 1)
@@ -239,31 +289,30 @@ func GetEpisodeList(searchedShow, season string) {
 	var val string
 	_, baseURL, _ := GetURL(searchedShow, "1", season)
 
-	ctxt, cancel := context.WithTimeout(context.Background(), 180*time.Second)
+	ctxt, cancel := chromedp.NewContext(context.Background())
+	//ctxt, cancel = context.WithTimeout(ctxt, 180*time.Second)
 	defer cancel()
 
 	var episodeSlice []string
 	var dateSlice []string
+	/*
+		c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
 
-	c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+			runner.Flag("headless", true),
+			runner.Flag("disable-gpu", true),
+			runner.Flag("no-first-run", true),
+			runner.Flag("no-sandbox", true),
+			runner.Flag("no-default-browser-check", true),
+		))
+	*/
 
-		runner.Flag("headless", true),
-		runner.Flag("disable-gpu", true),
-		runner.Flag("no-first-run", true),
-		runner.Flag("no-sandbox", true),
-		runner.Flag("no-default-browser-check", true),
-	))
-
-	if newerr != nil {
-		log.Fatal(newerr)
-	}
-	err := c.Run(ctxt, ClickForEpisodeList(baseURL, &val))
+	err := chromedp.Run(ctxt, ClickForEpisodeList(baseURL, &val))
 	if err != nil {
 		fmt.Println("Couldn't get the episode list. Please re run the program.")
-		newerr := c.Shutdown(ctxt)
-		if newerr != nil {
-			log.Fatal(newerr)
-		}
+		//newerr := c.Shutdown(ctxt)
+		//if newerr != nil {
+		//	log.Fatal(newerr)
+		//}
 		log.Fatal(err)
 	}
 
@@ -285,9 +334,59 @@ func GetEpisodeList(searchedShow, season string) {
 		fmt.Println(episodes)
 	}
 
-	cErr := c.Shutdown(ctxt)
-	if cErr != nil {
-		log.Fatal("cErr")
+}
+
+func GetEpisodeListAPI(searchedShow string) []string {
+	log.SetFlags(0)
+	var val string
+	_, baseURL, _ := GetURL(searchedShow, "1", "")
+
+	//ctxt, cancel := context.WithTimeout(context.Background(), 180*time.Second)
+
+	ctxt, cancel := chromedp.NewContext(context.Background())
+	//ctxt, cancel = context.WithTimeout(ctxt, 180*time.Second)
+	defer cancel()
+
+	var episodeSlice []string
+	var dateSlice []string
+
+	/*
+		c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
+
+			runner.Flag("headless", true),
+			runner.Flag("disable-gpu", true),
+			runner.Flag("no-first-run", true),
+			runner.Flag("no-sandbox", true),
+			runner.Flag("no-default-browser-check", true),
+		))
+	*/
+
+	//if newerr != nil {
+	//	log.Fatal(newerr)
+	//}
+	err := chromedp.Run(ctxt, ClickForEpisodeList(baseURL, &val))
+	if err != nil {
+		fmt.Println("Couldn't get the episode list. Please re run the program.")
+		//newerr := c.Shutdown(ctxt)
+		//if newerr != nil {
+		//	log.Fatal(newerr)
+		//}
+		log.Fatal(err)
 	}
 
+	stringVals := strings.NewReader(val)
+	doc, _ := goquery.NewDocumentFromReader(stringVals)
+	var temp []string
+	doc.Find("tbody").Each(func(i int, s *goquery.Selection) {
+		episodeVals := s.Find("a").Text()
+		dateVals := s.Find("td").Text()
+
+		trimEpisodeVals := strings.Trim(episodeVals, "\n\t\r")
+		trimDateVals := strings.Trim(dateVals, "\n\t\r")
+		temp = strings.Split(trimDateVals, "\n")
+		episodeSlice = append(episodeSlice, trimEpisodeVals)
+		dateSlice = append(dateSlice, trimDateVals)
+	})
+
+	return temp
 }

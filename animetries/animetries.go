@@ -4,6 +4,7 @@ package animetries
 // a trie algorithm to aid in keyword
 // search for anime shows
 
+
 import (
 	"encoding/csv"
 	"fmt"
@@ -24,11 +25,28 @@ type AnimeInfo struct {
 	Members  string
 }
 
+type AnimeShow struct {
+	Name string `json:"name"`
+}
+
 func PossibleShows(builtTrie *trie.Trie, searchedShow string) {
 	possibleShows := builtTrie.FuzzySearch(searchedShow)
 	for _, show := range possibleShows {
 		fmt.Println(show)
 	}
+}
+
+func PossibleShowsAPI(builtTrie *trie.Trie, searchedShow string) []AnimeShow {
+	possibleShows := builtTrie.FuzzySearch(searchedShow)
+	var shows []AnimeShow
+	
+	for _, show := range possibleShows {
+		//fmt.Println(show)
+		var episode AnimeShow
+		episode.Name = show
+		shows = append(shows, episode)
+	}
+	return shows
 }
 
 func ShowToEpisodeMap(a []AnimeInfo) []map[string]string {
