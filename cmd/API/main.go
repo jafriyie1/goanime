@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"sync"
 
-	_ "go/goanime/cmd/API/statik"
-
 	"github.com/gorilla/mux"
 	"github.com/jafriyie1/goanime/animescrapper"
 	"github.com/jafriyie1/goanime/animetries"
 	"github.com/rakyll/statik/fs"
+
+	_ "go/goanime/Data/statik"
 )
 
 type Episodes struct {
