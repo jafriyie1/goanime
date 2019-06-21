@@ -7,15 +7,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 
 	"github.com/gorilla/mux"
 	"github.com/jafriyie1/goanime/animescrapper"
 	"github.com/jafriyie1/goanime/animetries"
-	"github.com/rakyll/statik/fs"
-
-	_ "go/goanime/Data/statik"
 )
 
 type Episodes struct {
@@ -112,13 +110,8 @@ func getMatchedShows(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(queryForShow)
 
 	//queryForShow := query.Get("name")
-	/*
-		f, err := os.Open("episodes.csv")
-		if err != nil {
-			log.Fatal(err)
-		}
-	*/
-	f, err := fs.New()
+
+	f, err := os.Open("episodes.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
