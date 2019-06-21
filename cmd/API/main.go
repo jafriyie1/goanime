@@ -110,7 +110,7 @@ func getMatchedShows(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(queryForShow)
 
 	//queryForShow := query.Get("name")
-	f, err := os.Open("../../Data/test/episodes.csv")
+	f, err := os.Open("episodes.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
