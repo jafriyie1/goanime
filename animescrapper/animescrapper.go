@@ -210,7 +210,7 @@ func DoGoAnime() (context.Context, context.CancelFunc) {
 
 }
 
-func OpenEpisodesAPI(lowerLimitEpisode string, searchedShow string) string {
+func OpenEpisodesAPI(ctxt Context, cancel.lowerLimitEpisode string, searchedShow string) string {
 
 	ctxt, cancel := DoGoAnime()
 	defer cancel()
@@ -231,7 +231,8 @@ func OpenEpisodesAPI(lowerLimitEpisode string, searchedShow string) string {
 		//	log.Fatal(newerr)
 		//}
 		log.Fatal(err)
-		os.Exit(1)
+		return "Couldn't get the episode. Please re run the program."
+		//os.Exit(1)
 	}
 
 	r, _ := regexp.Compile(`src="(.*?)"`)
