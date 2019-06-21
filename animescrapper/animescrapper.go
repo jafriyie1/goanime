@@ -210,7 +210,7 @@ func DoGoAnime() (context.Context, context.CancelFunc) {
 
 }
 
-func OpenEpisodesAPI(ctxt Context, cancel.lowerLimitEpisode string, searchedShow string) string {
+func OpenEpisodesAPI(lowerLimitEpisode string, searchedShow string) string {
 
 	ctxt, cancel := DoGoAnime()
 	defer cancel()
