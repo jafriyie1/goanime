@@ -232,7 +232,7 @@ func OpenEpisodes(lowerLimitEpisode, upperLimitEpisode, searchedShow, season str
 	_, baseURL, episode := GetURL(searchedShow, lowerLimitEpisode, season)
 
 	episodeSearch := baseURL + episode + "?id=&s=rapidVideo"
-	fmt.Println(episodeSearch)
+	//fmt.Println(episodeSearch)
 
 	// run task list
 	log.SetFlags(0)
