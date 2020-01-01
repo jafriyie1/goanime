@@ -15,22 +15,16 @@ import (
 	"github.com/jafriyie1/goanime/animetries"
 )
 
-var searchedShow string
-var lowerLimitEpisode string
-var upperLimitEpisode string
-var lowerEpisode int
-var upperEpisode int
-
-func runAnime(lowerEpisode, upperEpisode int) {
+func runAnime(lowerEpisode, upperEpisode int, searchedShow string) {
 	fmt.Println("Please wait....")
 	wg := new(sync.WaitGroup)
 	for i := lowerEpisode; i < upperEpisode+1; i++ {
 		wg.Add(1)
-		//c, ctxt := animescrapper.DoGoAnime()
+
 		fmt.Println("Getting Episode", i)
 		loopedEpisode := strconv.Itoa(i)
-		go animescrapper.OpenEpisodes(loopedEpisode, upperLimitEpisode, searchedShow, "", wg)
-		//time.Sleep(5*time.Second)
+		upperLimit := strconv.Itoa(upperEpisode + 1)
+		go animescrapper.OpenEpisodes(loopedEpisode, upperLimit, searchedShow, "", wg)
 
 	}
 	wg.Wait()
@@ -64,7 +58,6 @@ func main() {
 
 	_, builtTrie, _ := animetries.BuildAnimeTrie(r)
 	var option string
-	//fmt.Println(*show, *start, *end)
 
 	if *show == "" || *start == "" || *end == "" {
 
@@ -86,6 +79,9 @@ func main() {
 		}
 		option = strings.TrimSpace(option)
 
+		var lowerLimitEpisode string
+		var upperLimitEpisode string
+
 		if option == "1" {
 			lowerLimitEpisode, _ = animescrapper.GetRangeOfEpisodes(false)
 			upperLimitEpisode = lowerLimitEpisode
@@ -94,21 +90,28 @@ func main() {
 			lowerLimitEpisode, upperLimitEpisode = animescrapper.GetRangeOfEpisodes(true)
 		}
 
-		lowerEpisode, _ = strconv.Atoi(lowerLimitEpisode)
-		upperEpisode, _ = strconv.Atoi(upperLimitEpisode)
+		lowerEpisode, _ := strconv.Atoi(lowerLimitEpisode)
+		upperEpisode, _ := strconv.Atoi(upperLimitEpisode)
 
-		runAnime(lowerEpisode, upperEpisode)
+		runAnime(lowerEpisode, upperEpisode, searchedShow)
 
 	} else {
+		var searchedShow string
 		searchedShow = strings.Replace(*show, "'", "", -1)
+
+		var lowerLimitEpisode string
+		var upperLimitEpisode string
 		lowerLimitEpisode = *start
 		upperLimitEpisode = *end
 
 		fmt.Println(searchedShow, lowerLimitEpisode, upperLimitEpisode)
 
+		var lowerEpisode int
+		var upperEpisode int
+
 		lowerEpisode, _ = strconv.Atoi(lowerLimitEpisode)
 		upperEpisode, _ = strconv.Atoi(upperLimitEpisode)
 
-		runAnime(lowerEpisode, upperEpisode)
+		runAnime(lowerEpisode, upperEpisode, searchedShow)
 	}
 }
