@@ -17,10 +17,10 @@ If you would like to contribute that would be absolutely swell :) !!! I am curre
 I think it is a beautiful language; because of this, the code may not be written in the best way. With this in mind
 anyone who has ideas for features or how to improve the code would be greatly appreciated!
 
-## Example of program in terminal (with logging) 
-[![asciicast](https://asciinema.org/a/KttZeSMSQ2musQVoPh2lr8MDI.png)](https://asciinema.org/a/KttZeSMSQ2musQVoPh2lr8MDI)
 
 ## How to use 
+Make sure that you have Google Chrome with an ad block plugin installed on your computer.
+
 To use the streamer first clone the repo. After you have done that run the following commands:
 
 `go get -u github.com/jafriyie1/goanime`
@@ -28,15 +28,9 @@ To use the streamer first clone the repo. After you have done that run the follo
  `go install github.com/jafriyie1/goanime/animetries`
  
  `go install github.com/jafriyie1/goanime/animescrapper`
+ 
+ `go get -u github.com/akamensky/argparse`
 
  Once you have executed the commands, navigate to the cmd/goanime folder in the cloned repo. 
  Type `go run main.go` and you should be good to go!
 
-## Disclaimer 
-
-As of right now this application is still very raw. I can't guarantee that it will work for your machine due to the fact that I haven't written full tests for potential pitfalls.
-## Upcoming Features
-- Allow Dubbed versions of shows (Completed)
-- Allow users to put more than one episode (Completed)
-- Include search feature of possible shows (Completed)
-- Easy installation and cross compatability (Completed)
