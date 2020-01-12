@@ -29,24 +29,12 @@ func main() {
 
 	filePath := fmt.Sprintf("../../Data/test/episodes.csv")
 	file, fileErr := os.Create(filePath)
-	for j := 0; j <= 10; j++ {
+	for j := 0; j <= 11; j++ {
 		//ctxt, cancel := context.WithTimeout(context.Background(), 3*time.Hour)
 		ctxt, cancel := chromedp.NewContext(context.Background())
 		ctxt, cancel = context.WithTimeout(ctxt, 180*time.Second)
 		defer cancel()
 
-		/*
-			c, newerr := chromedp.New(ctxt, chromedp.WithRunnerOptions(
-
-				runner.Flag("headless", true),
-				runner.Flag("disable-gpu", true),
-				runner.Flag("no-first-run", true),
-				runner.Flag("no-sandbox", true),
-				//runner.Flag("no-default-browser-check", true),
-			))
-		*/
-
-		//c, newerr := chromedp.New(ctxt)
 		var incr int
 		incr = (j * 19) + 1
 		end := incr + 19
@@ -101,12 +89,6 @@ func main() {
 
 			time.Sleep(time.Second * 5)
 		}
-		/*
-			cErr := c.Shutdown(ctxt)
-			if cErr != nil {
-				log.Fatal("cErr")
-			}
-		*/
 
 	}
 
